@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import pickle
 import os
 
-bot = telebot.TeleBot('7804303855:AAEJEORGTo9qq6E2lewLjm4vwg2N1oEwNBM')
+bot = telebot.TeleBot('')
 
 # Файл для хранения данных
 DATA_FILE = 'user_data.pkl'
